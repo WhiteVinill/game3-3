@@ -1,0 +1,78 @@
+const readline = require('readline-sync');
+
+function printBoard(board) {
+    for (let row of board) {
+        console.log(row.join(' | '));
+        console.log('-'.repeat(9));
+    }
+}
+
+function checkWinner(board, player) {
+    // Check rows
+    for (let row of board) {
+        if (row.every(cell => cell === player)) {
+            return true;
+        }
+    }
+
+    // Check columns
+    for (let col = 0; col < 3; col++) {
+        if (board.every(row => row[col] === player)) {
+            return true;
+        }
+    }
+
+    // Check diagonals
+    if (board[0][0] === player && board[1][1] === player && board[2][2] === player) {
+        return true;
+    }
+    if (board[0][2] === player && board[1][1] === player && board[2][0] === player) {
+        return true;
+    }
+
+    return false;
+}
+
+function isBoardFull(board) {
+    return board.every(row => row.every(cell => cell !== ' '));
+}
+
+function getPlayerMove(board, player) {
+    while (true) {
+        const move = readline.question(`Player ${player}, enter your move (row column): `).split(' ');
+        const [row, col] = move.map(Number);
+        if (isNaN(row) || isNaN(col) || row < 1 || row > 3 || col < 1 || col > 3 || board[row - 1][col - 1] !== ' ') {
+            console.log('Invalid move. Please try again.');
+        } else {
+            return { row: row - 1, col: col - 1 };
+        }
+    }
+}
+
+function playGame() {
+    const board = [[' ', ' ', ' '], [' ', ' ', ' '], [' ', ' ', ' ']];
+    const players = ['X', 'O'];
+    let currentPlayer = 0;
+
+    while (true) {
+        printBoard(board);
+        const { row, col } = getPlayerMove(board, players[currentPlayer]);
+        board[row][col] = players[currentPlayer];
+
+        if (checkWinner(board, players[currentPlayer])) {
+            printBoard(board);
+            console.log(`Player ${players[currentPlayer]} wins!`);
+            break;
+        }
+
+        if (isBoardFull(board)) {
+            printBoard(board);
+            console.log("It's a tie!");
+            break;
+        }
+
+        currentPlayer = (currentPlayer + 1) % 2;
+    }
+}
+
+playGame();
